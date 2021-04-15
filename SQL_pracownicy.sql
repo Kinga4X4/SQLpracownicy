@@ -27,10 +27,10 @@ SELECT*From pracownik order by nazwisko;
 SELECT * from pracownik Where stanowisko like 'cieśla';
 
 -- Pobiera pracowników, którzy mają co najmniej 30 lat
-Select * from pracownik where (year(curdate()) - year(data_urodzenia))>30;
+Select * from pracownik where (year(curdate()) - year(data_urodzenia))>=30;
 
 -- Zwiększa wypłatę pracowników na wybranym stanowisku o 10%
-UPDATE pracownik SET wypłata = (wypłata*0.1)+wypłata Where stanowisko = 'glazurnik';
+UPDATE pracownik SET wypłata = 1.1*wypłata Where stanowisko = 'glazurnik';
 
 -- Pobiera najmłodszego pracownika (uwzględnij przypadek, że może być kilku urodzonych tego samego dnia)
 select * from pracownik where data_urodzenia = (select max(data_urodzenia) from pracownik);
@@ -84,8 +84,8 @@ create table pracownik1 (
 	nazwisko VARCHAR(30),
     stanowisko_id INT UNIQUE NOT NULL, 
     adres_id INT UNIQUE NOT NULL,
-    FOREIGN KEY (stanowisko_id) REFERENCES stanowisko(stanowisko_id),
-    FOREIGN KEY (adres_id) REFERENCES adres(adres_id)
+    FOREIGN KEY (stanowisko_id) REFERENCES stanowisko(id),
+    FOREIGN KEY (adres_id) REFERENCES adres(id)
     );
 
 -- Dodaje dane testowe (w taki sposób, aby powstały pomiędzy nimi sensowne powiązania)
@@ -100,10 +100,12 @@ Values
 ('Olek', 'Pantofel',11,6);
 
 -- Pobiera pełne informacje o pracowniku (imię, nazwisko, adres, stanowisko)
-SELECT p1.imie, p1.nazwisko, a.ulica, a.numer, a.kod_pocztowy, a.miejscowosc, s.nazwa AS stanowisko FROM pracownik1 AS p1, adres AS a, stanowisko AS s where p1.stanowisko_id = s.id AND p1.adres_id = a.id;
+SELECT p1.imie, p1.nazwisko, a.ulica, a.numer, a.kod_pocztowy, a.miejscowosc, s.nazwa AS stanowisko FROM 
+pracownik1 AS p1, adres AS a, stanowisko AS s where p1.stanowisko_id = s.id AND p1.adres_id = a.id;
 
--- Oblicza sumę wypłat dla wszystkich pracowników w firmie
-SELECT SUM(wypłata) FROM stanowisko;
+-- !!!!!! poprawOblicza sumę wypłat dla wszystkich pracowników w firmie należy pobrać wypłaty wszystkich pracowników, a nie sumę wypłat na wszystkich stanowiskach. 
+-- Co jak będziemy mieli przykładowo tylko 3 ślusarzy?
+SELECT p1.imie, p1.nazwisko,s.wypłata FROM pracownik1 AS p1, stanowisko AS s where p1.stanowisko_id = s.id;
 
 -- Pobiera pracowników mieszkających w lokalizacji z kodem pocztowym 90210 (albo innym, który będzie miał sens dla Twoich danych testowych)
-SELECT* FROM adres Where kod_pocztowy = '76-200';
+SELECT p1.imie, p1.nazwisko, a.ulica, a.numer, a.kod_pocztowy, a.miejscowosc FROM pracownik1 AS p1, adres as a Where p1.adres_id=a.id AND kod_pocztowy = '76-200';
